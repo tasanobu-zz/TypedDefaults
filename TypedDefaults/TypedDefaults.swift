@@ -9,7 +9,7 @@
 import Foundation
 
 /// Represents objects that can type-safely be interacted with NSUserDefaults
-protocol UserDefaultsConvertible {
+public protocol UserDefaultsConvertible {
     
     /// Key for NSUserDefaults
     static var key: String { get }
@@ -23,20 +23,29 @@ protocol UserDefaultsConvertible {
 }
 
 // MARK: -
-final class UserDefaultsWrapper<Object: UserDefaultsConvertible> {
-    class func get() -> Object? {
-        guard let obj = NSUserDefaults.standardUserDefaults().objectForKey(Object.key) else {
-            return nil
-        }
+public final class UserDefaultsWrapper<Object: UserDefaultsConvertible> {
+    private let _type: Object.Type
+    
+    private let ud: NSUserDefaults = NSUserDefaults.standardUserDefaults()
+
+    public init(type: Object.Type) {
+        _type = type
+    }
+    
+    public func getObject() -> Object? {
+        guard let obj = ud.objectForKey(Object.key) else { return nil }
         return Object(obj)
     }
-    class func set(object: Object) {
+    
+    public func setObject(object: Object) {
         let obj = object.serialize()
-        let key = object.dynamicType.key
-        NSUserDefaults.standardUserDefaults().setObject(obj, forKey: key)
+        let key = Object.key
+        
+        ud.setObject(obj, forKey: key)
     }
-    class func remove() {
-        NSUserDefaults.standardUserDefaults().removeObjectForKey(Object.key)
+    
+    public func removeObject() {
+        ud.removeObjectForKey(Object.key)
     }
 }
 
