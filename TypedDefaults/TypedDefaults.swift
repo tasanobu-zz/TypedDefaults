@@ -8,44 +8,128 @@
 
 import Foundation
 
-/// Represents objects that can type-safely be interacted with NSUserDefaults
-public protocol UserDefaultsConvertible {
-    
-    /// Key for NSUserDefaults
-    static var key: String { get }
+// MARK: - DefaultConvertible
+
+/// Represents objects that can type-safely be interacted with DefaultStoreType
+public protocol DefaultConvertible {
     
     /// Desirialize AnyObject to adopted object.
-    /// The argument "object" is intended to be passed from NSUserDefaults
+    /// The argument "object" is intended to be passed from DefaultStoreType
     init?(_ object: AnyObject)
     
-    /// Serialize adopted object to AnyObject for setting it to NSUserDefaults.
+    /// Serialize adopted object to AnyObject for setting it to DefaultStoreType.
     func serialize() -> AnyObject
 }
 
-// MARK: -
-public final class UserDefaultsWrapper<Object: UserDefaultsConvertible> {
-    private let _type: Object.Type
-    
-    private let ud: NSUserDefaults = NSUserDefaults.standardUserDefaults()
+// MARK: - DefaultStoreType
 
-    public init(type: Object.Type) {
-        _type = type
-    }
+public protocol DefaultStoreType {
+    typealias Default: DefaultConvertible
     
-    public func getObject() -> Object? {
-        guard let obj = ud.objectForKey(Object.key) else { return nil }
-        return Object(obj)
-    }
+    var key: String { get }
+    var type: Default.Type { get }
     
-    public func setObject(object: Object) {
-        let obj = object.serialize()
-        let key = Object.key
+    init(type: Default.Type, key: String)
+    
+    func set(value: Default)
+    func get() -> Default?
+    func remove()
+}
+
+// MARK: -
+
+public final class AnyStore<D: DefaultConvertible>: DefaultStoreType {
+    public typealias Default = D
+    
+    public let key: String
+    public let type: Default.Type
+    
+    private let _set: Default -> ()
+    private let _get: () -> Default?
+    private let _remove: () -> ()
+    
+    public init<Inner: DefaultStoreType where Inner.Default == D>(_ inner: Inner) {
+        self.key = inner.key
+        self.type = inner.type
         
-        ud.setObject(obj, forKey: key)
+        _set = inner.set
+        _get = inner.get
+        _remove = inner.remove
     }
     
-    public func removeObject() {
-        ud.removeObjectForKey(Object.key)
+    public init(type: Default.Type, key: String) {
+        self.key = key
+        self.type = type
+        _set = { _ in return }
+        _get = { return nil }
+        _remove = { return }
+    }
+    
+    public func set(value: Default) {
+        _set(value)
+    }
+    
+    public func get() -> Default? {
+        return _get()
+    }
+    
+    public func remove() {
+        _remove()
     }
 }
 
+// MARK: -
+
+public final class DefaultsStore<Default: DefaultConvertible>: DefaultStoreType {
+    public let key: String
+    public let type: Default.Type
+    
+    private let defaults = NSUserDefaults.standardUserDefaults()
+    
+    public init(type: Default.Type, key: String) {
+        self.type = type
+        self.key = key
+    }
+    
+    public func set(value: Default) {
+        let obj = value.serialize()
+        defaults.setObject(obj, forKey: key)
+    }
+    
+    public func get() -> Default? {
+        guard let obj = defaults.objectForKey(key) else { return nil }
+        return Default(obj)
+    }
+    
+    public func remove() {
+        defaults.removeObjectForKey(key)
+    }
+}
+
+// MARK: -
+
+public final class DictionaryStore<Default: DefaultConvertible>: DefaultStoreType {
+    public let key: String
+    public let type: Default.Type
+    
+    private var dictionary: [String: AnyObject] = [:]
+    
+    public init(type: Default.Type, key: String) {
+        self.type = type
+        self.key = key
+    }
+    
+    public func set(value: Default) {
+        let obj = value.serialize()
+        dictionary[key] = obj
+    }
+    
+    public func get() -> Default? {
+        guard let obj = dictionary[key] else { return nil }
+        return Default(obj)
+    }
+    
+    public func remove() {
+        dictionary[key] = nil
+    }
+}
