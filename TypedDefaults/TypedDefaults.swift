@@ -27,7 +27,6 @@ public protocol DefaultStoreType {
     associatedtype Default: DefaultConvertible
     
     var key: String { get }
-    var type: Default.Type { get }
     
     init(type: Default.Type, key: String)
     
@@ -42,7 +41,6 @@ public final class AnyStore<D: DefaultConvertible>: DefaultStoreType {
     public typealias Default = D
     
     public let key: String
-    public let type: Default.Type
     
     private let _set: Default -> ()
     private let _get: () -> Default?
@@ -50,7 +48,6 @@ public final class AnyStore<D: DefaultConvertible>: DefaultStoreType {
     
     public init<Inner: DefaultStoreType where Inner.Default == D>(_ inner: Inner) {
         self.key = inner.key
-        self.type = inner.type
         
         _set = inner.set
         _get = inner.get
@@ -82,12 +79,10 @@ public final class AnyStore<D: DefaultConvertible>: DefaultStoreType {
 
 public final class DefaultsStore<Default: DefaultConvertible>: DefaultStoreType {
     public let key: String
-    public let type: Default.Type
     
     private let defaults = NSUserDefaults.standardUserDefaults()
     
     public init(type: Default.Type, key: String) {
-        self.type = type
         self.key = key
     }
     
@@ -110,12 +105,10 @@ public final class DefaultsStore<Default: DefaultConvertible>: DefaultStoreType 
 
 public final class DictionaryStore<Default: DefaultConvertible>: DefaultStoreType {
     public let key: String
-    public let type: Default.Type
     
     private var dictionary: [String: AnyObject] = [:]
     
     public init(type: Default.Type, key: String) {
-        self.type = type
         self.key = key
     }
     
