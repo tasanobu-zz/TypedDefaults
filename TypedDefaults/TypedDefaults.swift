@@ -13,6 +13,8 @@ import Foundation
 /// Represents objects that can type-safely be interacted with DefaultStoreType
 public protocol DefaultConvertible {
     
+    static var key: String { get }
+    
     /// Desirialize AnyObject to adopted object.
     /// The argument "object" is intended to be passed from DefaultStoreType
     init?(_ object: AnyObject)
@@ -24,9 +26,8 @@ public protocol DefaultConvertible {
 // MARK: - DefaultStoreType
 
 public protocol DefaultStoreType {
-    associatedtype Default: DefaultConvertible
     
-    var key: String { get }
+    associatedtype Default: DefaultConvertible
   
     func set(value: Default)
     func get() -> Default?
@@ -36,17 +37,14 @@ public protocol DefaultStoreType {
 // MARK: -
 
 public final class AnyStore<D: DefaultConvertible>: DefaultStoreType {
-    public typealias Default = D
     
-    public let key: String
+    public typealias Default = D
     
     private let _set: Default -> ()
     private let _get: () -> Default?
     private let _remove: () -> ()
     
     public init<Inner: DefaultStoreType where Inner.Default == D>(_ inner: Inner) {
-        self.key = inner.key
-        
         _set = inner.set
         _get = inner.get
         _remove = inner.remove
@@ -68,52 +66,41 @@ public final class AnyStore<D: DefaultConvertible>: DefaultStoreType {
 // MARK: -
 
 public final class DefaultsStore<Default: DefaultConvertible>: DefaultStoreType {
-    public let key: String
     
     private let defaults = NSUserDefaults.standardUserDefaults()
     
-    public init(key: String) {
-        self.key = key
-    }
-    
     public func set(value: Default) {
         let obj = value.serialize()
-        defaults.setObject(obj, forKey: key)
+        defaults.setObject(obj, forKey: Default.key)
     }
     
     public func get() -> Default? {
-        guard let obj = defaults.objectForKey(key) else { return nil }
+        guard let obj = defaults.objectForKey(Default.key) else { return nil }
         return Default(obj)
     }
     
     public func remove() {
-        defaults.removeObjectForKey(key)
+        defaults.removeObjectForKey(Default.key)
     }
 }
 
 // MARK: -
 
 public final class DictionaryStore<Default: DefaultConvertible>: DefaultStoreType {
-    public let key: String
     
     private var dictionary: [String: AnyObject] = [:]
-
-    
-    public init(key: String) {
-        self.key = key
-    }
     
     public func set(value: Default) {
         let obj = value.serialize()
-        dictionary[key] = obj
+        dictionary[Default.key] = obj
     }
     
     public func get() -> Default? {
-        guard let obj = dictionary[key] else { return nil }
+        guard let obj = dictionary[Default.key] else { return nil }
         return Default(obj)
     }
     
     public func remove() {
-        dictionary[key] = nil
+        dictionary[Default.key] = nil
     }
 }
