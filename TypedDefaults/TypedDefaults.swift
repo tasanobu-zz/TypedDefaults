@@ -24,7 +24,7 @@ public protocol DefaultConvertible {
 // MARK: - DefaultStoreType
 
 public protocol DefaultStoreType {
-    typealias Default: DefaultConvertible
+    associatedtype Default: DefaultConvertible
     
     var key: String { get }
     var type: Default.Type { get }
