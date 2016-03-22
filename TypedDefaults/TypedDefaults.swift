@@ -27,9 +27,7 @@ public protocol DefaultStoreType {
     associatedtype Default: DefaultConvertible
     
     var key: String { get }
-    
-    init(type: Default.Type, key: String)
-    
+  
     func set(value: Default)
     func get() -> Default?
     func remove()
@@ -54,14 +52,6 @@ public final class AnyStore<D: DefaultConvertible>: DefaultStoreType {
         _remove = inner.remove
     }
     
-    public init(type: Default.Type, key: String) {
-        self.key = key
-        self.type = type
-        _set = { _ in return }
-        _get = { return nil }
-        _remove = { return }
-    }
-    
     public func set(value: Default) {
         _set(value)
     }
@@ -82,7 +72,7 @@ public final class DefaultsStore<Default: DefaultConvertible>: DefaultStoreType 
     
     private let defaults = NSUserDefaults.standardUserDefaults()
     
-    public init(type: Default.Type, key: String) {
+    public init(key: String) {
         self.key = key
     }
     
@@ -107,8 +97,9 @@ public final class DictionaryStore<Default: DefaultConvertible>: DefaultStoreTyp
     public let key: String
     
     private var dictionary: [String: AnyObject] = [:]
+
     
-    public init(type: Default.Type, key: String) {
+    public init(key: String) {
         self.key = key
     }
     
