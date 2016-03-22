@@ -69,6 +69,8 @@ public final class DefaultsStore<Default: DefaultConvertible>: DefaultStoreType 
     
     private let defaults = NSUserDefaults.standardUserDefaults()
     
+    public init() {}
+    
     public func set(value: Default) {
         let obj = value.serialize()
         defaults.setObject(obj, forKey: Default.key)
@@ -89,6 +91,8 @@ public final class DefaultsStore<Default: DefaultConvertible>: DefaultStoreType 
 public final class DictionaryStore<Default: DefaultConvertible>: DefaultStoreType {
     
     private var dictionary: [String: AnyObject] = [:]
+    
+    public init() {}
     
     public func set(value: Default) {
         let obj = value.serialize()
