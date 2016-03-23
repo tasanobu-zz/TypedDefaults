@@ -15,7 +15,8 @@ TypedDefaults
 The talk "Keep Calm and Type Erase On" by [Gwendolyn Weston](https://github.com/gwengrid) at [try! Swift 2016](http://www.tryswiftconf.com) is great and it inspired me to apply the technique "Type Erasure" for actual cases in app development.
 
 ## Features
-- Structured data can be type-safely set/get/remove to NSUserDefaults with a single key
+- With a single key, structured data can be type-safely managed(set/get/remove) in NSUserDefaults
+- For Unit Test, mock type which simulates NSUserDefaults is prepared
 
 ## Installation
 - Install with Cocoapods
