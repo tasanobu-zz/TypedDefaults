@@ -65,19 +65,30 @@ The talk "Keep Calm and Type Erase On" by [Gwendolyn Weston](https://github.com/
       }
   }
   ```
-- Create a `PersistentStore` instnce and pass it to `AnyStore` initializer instance
+- Create a `PersistentStore` instnce and pass it to `AnyStore` initializer
   ```
   let ps = PersistentStore<CameraConfig>()
   let as = AnyStore(ps)
   ```
 - Call `AnyStore` methods as below
   ```
-  /// Get
-  as.get()
-
   /// Set
-  let config = CameraConfig([:]) // default setting
+  var config = CameraConfig([:]) // default setting
   as.set(config)
+
+  /// Get
+  config = as.get()
+
+  // change the config
+  config.saveToCameraRoll = false
+  config.size = .Large
+
+  /// Set to save the new config in NSUserDefaults
+  as.set(config)
+  as.syncronize()
+
+  /// Remove
+  as.remove()
   ```
 
 ## Release Notes
