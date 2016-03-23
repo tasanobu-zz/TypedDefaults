@@ -65,7 +65,7 @@ public final class AnyStore<D: DefaultConvertible>: DefaultStoreType {
 
 // MARK: -
 
-public final class DefaultsStore<Default: DefaultConvertible>: DefaultStoreType {
+public final class PersistentStore<Default: DefaultConvertible>: DefaultStoreType {
     
     private let defaults = NSUserDefaults.standardUserDefaults()
     
@@ -84,11 +84,15 @@ public final class DefaultsStore<Default: DefaultConvertible>: DefaultStoreType 
     public func remove() {
         defaults.removeObjectForKey(Default.key)
     }
+    
+    public func syncronize() -> Bool {
+        return defaults.synchronize()
+    }
 }
 
 // MARK: -
 
-public final class DictionaryStore<Default: DefaultConvertible>: DefaultStoreType {
+public final class InMemoryStore<Default: DefaultConvertible>: DefaultStoreType {
     
     private var dictionary: [String: AnyObject] = [:]
     
