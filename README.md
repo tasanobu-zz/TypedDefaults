@@ -21,8 +21,9 @@ The talk "Keep Calm and Type Erase On" by [Gwendolyn Weston](https://github.com/
 - Install with Cocoapods
 
   ```ruby
-  platform :ios, '8.0'
   use_frameworks!
+
+  platform :ios, '8.0'
 
   pod 'PercentEncoder'
   ```
