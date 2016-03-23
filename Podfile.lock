@@ -1,0 +1,14 @@
+PODS:
+  - TypedDefaults (1.0.0)
+
+DEPENDENCIES:
+  - TypedDefaults (from `./`)
+
+EXTERNAL SOURCES:
+  TypedDefaults:
+    :path: ./
+
+SPEC CHECKSUMS:
+  TypedDefaults: d8eae3255cfc926597dafdf6516ecd91dada25e2
+
+COCOAPODS: 0.39.0
