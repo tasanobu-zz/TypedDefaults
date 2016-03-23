@@ -67,8 +67,10 @@ The talk "Keep Calm and Type Erase On" by [Gwendolyn Weston](https://github.com/
   ```
 - Create a `PersistentStore` instnce and pass it to `AnyStore` initializer
   ```
+  
   let ps = PersistentStore<CameraConfig>()
   let as = AnyStore(ps)
+  
   ```
 - Call `AnyStore` methods as below
   ```
