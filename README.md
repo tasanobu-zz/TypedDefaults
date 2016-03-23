@@ -36,7 +36,7 @@ The talk "Keep Calm and Type Erase On" by [Gwendolyn Weston](https://github.com/
 ## Usage
 - Add `import TypedDefaults` at the top of Swift file.
 - Implement actual data type adopting `DefaultConvertible` protocol
-  ```
+  ```swift
   struct CameraConfig: DefaultConvertible {
       enum Size: Int {
           case Large, Medium, Small
@@ -66,14 +66,14 @@ The talk "Keep Calm and Type Erase On" by [Gwendolyn Weston](https://github.com/
   }
   ```
 - Create a `PersistentStore` instnce and pass it to `AnyStore` initializer
-  ```
+  ```swift
   
   let ps = PersistentStore<CameraConfig>()
   let as = AnyStore(ps)
   
   ```
 - Call `AnyStore` methods as below
-  ```
+  ```swift
   /// Set
   var config = CameraConfig([:]) // default setting
   as.set(config)
