@@ -14,9 +14,6 @@ TypedDefaults
 ## Motivation
 The talk "Keep Calm and Type Erase On" by [Gwendolyn Weston](https://github.com/gwengrid) at [try! Swift 2016](http://www.tryswiftconf.com) is great and it inspired me to apply the technique "Type Erasure" for actual cases in app development.
 
-## Features
-- Structured data can be type-safely set/get/remove to NSUserDefaults with a single key
-
 ## Installation
 - Install with Cocoapods
 
@@ -32,66 +29,137 @@ The talk "Keep Calm and Type Erase On" by [Gwendolyn Weston](https://github.com/
 - iOS 8.0+
 - Swift 2.2
 
+## Features
+- Custom types can be type-safely stored in NSUserDefaults
+- Dependency Injection support
 
 ## Usage
-- Add `import TypedDefaults` at the top of Swift file.
-- Implement actual data type adopting `DefaultConvertible` protocol
-  ```swift
-  struct CameraConfig: DefaultConvertible {
-      enum Size: Int {
-          case Large, Medium, Small
-      }
 
-      static let key = "CameraConfig"
+### Custom types
+Custom types can be type-safely stored in NSUserDefaults.<br/>
+Custom types only need to adopt `DefaultsConvertible` protocol as described later. No need to inherit NSObject.<br/>
+Therefore, `Swift native Class` `Struct` and `Enum` are available for custom types.(Of course, subclasses of NSObject are available.)  
 
-      let saveToCameraRoll: Bool
-      let size: Size
+#### `DefaultsConvertible` protocol
+```swift
+public protocol DefaultConvertible {
 
-      init?(_ object: AnyObject) {
-          guard let dict = object as? [String: AnyObject] else { return nil }
+    static var key: String { get }
 
-          self.saveToCameraRoll = dict["cameraRoll"] as? Bool ?? true
+    init?(_ object: AnyObject)
 
-          if let rawSize = dict["size"] as? Int, let size = Size(rawValue: rawSize) {
-              self.size = size
-          } else {
-              self.size = .Medium
-          }
-      }
+    func serialize() -> AnyObject
+}
+```
 
-      func serialize() -> AnyObject {
-          let obj = ["cameraRoll": saveToCameraRoll, "size": size.rawValue]
-          return obj
-      }
-  }
-  ```
-- Create a `PersistentStore` instnce and pass it to `AnyStore` initializer
-  ```swift
-  
-  let ps = PersistentStore<CameraConfig>()
-  let as = AnyStore(ps)
-  
-  ```
-- Call `AnyStore` methods as below
-  ```swift
-  /// Set
-  var config = CameraConfig([:]) // default setting
-  as.set(config)
+Custom types are stored in NSUserDefaults as AnyObject.<br/>
+`serialize()` is called when saving and `init?(_ object:)` is called when getting from NSUserDefaults.<br/>
+<br/>
+It's assuemd each custom type and one configuration used in app is one-to-one relation.<br/>
+Therefore, `key` is prepared as type property in order to assign `key` to one `custom type`.
 
-  /// Get
-  config = as.get()
+##### Example of custom type
+This is an example of the custom type with `flag for saving photo to CameraRoll` and `Photo Size` as camera configuration.
 
-  // change the config
-  config.saveToCameraRoll = false
-  config.size = .Large
+```swift
+struct CameraConfig: DefaultConvertible {
+    enum Size: Int {
+        case Large, Medium, Small
+    }
 
-  /// Set to save the new config in NSUserDefaults
-  as.set(config)
-  as.syncronize()
+    var saveToCameraRoll: Bool
+    var size: Size
 
-  /// Remove
-  as.remove()
-  ```
+    // MARK: DefaultConvertible
+
+    static let key = "CameraConfig"
+
+    init?(_ object: AnyObject) {
+        guard let dict = object as? [String: AnyObject] else {
+          return nil
+        }
+
+        self.saveToCameraRoll = dict["cameraRoll"] as? Bool ?? true
+        if let rawSize = dict["size"] as? Int,
+         let size = Size(rawValue: rawSize) {
+            self.size = size
+         } else {
+            self.size = .Medium
+        }
+    }
+
+    func serialize() -> AnyObject {
+        return ["cameraRoll": saveToCameraRoll, "size": size.rawValue]
+    }
+}
+```
+
+#### Saving custom type to NSUserDefaults
+`PersistentStore` is the class to save custom types to NSUserDefaults.<br/>
+Below is the sample of how to use it.
+
+```swift
+/// Specify a custom type when initializing PersistentStore
+let userDefaults = PersistentStore<CameraConfig>()
+
+// Make an instance of CameraConfig
+var cs = CameraConfig([:])!
+
+// Set
+userDefaults.set(cs)
+// Get
+userDefaults.get()?.size // Medium
+
+/// Change the size
+cs.size = .Large
+
+// Set
+userDefaults.set(cs)
+// Get
+userDefaults.get()?.size // Large
+```
+
+### Dependency Injection support
+NSuserDefaults is not Unit Test friendly because it persistently stores data on file system.<br/>
+`TypedDefaults` has the types `InMemoryStore` `AnyStore` for Dependency Injection in order to test types which behave differently depending on custom types stored in NSuserDefaults.<br/>
+<br/>
+`InMemoryStore` adopts `DefaultStoreType` protocol as well as `PersistentStore`. <br/>
+However, `InMemoryStore` retains custom types only on memory, which is different from `PersistentStore`.<br/>
+As for `AnyStore`, it is the type to abstract `PersistentStore` and `InMemoryStore`.
+
+#### Example
+This is the example to use `InMemoryStore` and `AnyStore` instead of `PersistentStore` at Unit Test.<br/>
+<br/>
+There is a class called `CameraViewController` which inherits UIViewController.<br/>
+It has a property `config` to retain a custom type saved in NSuserDefaults. To support Dependency Injection, set `AnyStore` as the type of `config`.
+
+```
+class CameraViewController: UIViewController {
+    lazy var config: AnyStore<CameraConfig> = {
+        let ds = PersistentStore<CameraConfig>()
+        return AnyStore(ds)
+    }()
+
+    ...
+}
+```
+
+Because the type of `config` is not `PersistentStore` but `AnyStore`, it can be replaced with `InMemoryStore` at Unit Test as below.
+
+```
+class CameraViewControllerTests: XCTestCase {
+    var viewController: CameraViewController!
+
+    override func setUp() {
+        viewController = CameraViewController()
+
+        let defaultConfig = CameraConfig([:])!
+        let ds = InMemoryStore<CameraConfig>()
+        ds.set(defaultConfig) //
+        viewController.config = AnyStore(ds)
+    }
+}
+```
 
 ## Release Notes
 See https://github.com/tasanobu/TypedDefaults/releases
