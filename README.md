@@ -22,7 +22,7 @@ The talk *Keep Calm and Type Erase On* by [Gwendolyn Weston](https://github.com/
 
   platform :ios, '8.0'
 
-  pod 'PercentEncoder'
+  pod 'TypedDefaults'
   ```
 
 #### Requirements
