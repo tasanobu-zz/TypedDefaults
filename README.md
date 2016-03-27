@@ -12,7 +12,7 @@ TypedDefaults
 `TypedDefaults` is a utility library to type-safely use NSUserDefaults.
 
 ## Motivation
-The talk "Keep Calm and Type Erase On" by [Gwendolyn Weston](https://github.com/gwengrid) at [try! Swift 2016](http://www.tryswiftconf.com) is great and it inspired me to apply the technique "Type Erasure" for actual cases in app development.
+The talk *Keep Calm and Type Erase On* by [Gwendolyn Weston](https://github.com/gwengrid) at [try! Swift 2016](http://www.tryswiftconf.com) is great and it inspired me to apply the technique *Type Erasure* for actual cases in app development.
 
 ## Installation
 - Install with Cocoapods
