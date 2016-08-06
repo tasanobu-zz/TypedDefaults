@@ -29,7 +29,7 @@ public protocol DefaultStoreType {
     
     associatedtype Default: DefaultConvertible
   
-    func set(value: Default)
+    func set(_ value: Default)
     func get() -> Default?
     func remove()
 }
@@ -40,7 +40,7 @@ public final class AnyStore<D: DefaultConvertible>: DefaultStoreType {
     
     public typealias Default = D
     
-    private let _set: Default -> ()
+    private let _set: (Default) -> ()
     private let _get: () -> Default?
     private let _remove: () -> ()
     
@@ -50,7 +50,7 @@ public final class AnyStore<D: DefaultConvertible>: DefaultStoreType {
         _remove = inner.remove
     }
     
-    public func set(value: Default) {
+    public func set(_ value: Default) {
         _set(value)
     }
     
@@ -67,22 +67,22 @@ public final class AnyStore<D: DefaultConvertible>: DefaultStoreType {
 
 public final class PersistentStore<Default: DefaultConvertible>: DefaultStoreType {
     
-    private let defaults = NSUserDefaults.standardUserDefaults()
+    private let defaults = UserDefaults.standard
     
     public init() {}
     
-    public func set(value: Default) {
+    public func set(_ value: Default) {
         let obj = value.serialize()
-        defaults.setObject(obj, forKey: Default.key)
+        defaults.set(obj, forKey: Default.key)
     }
     
     public func get() -> Default? {
-        guard let obj = defaults.objectForKey(Default.key) else { return nil }
+        guard let obj = defaults.object(forKey: Default.key) else { return nil }
         return Default(obj)
     }
     
     public func remove() {
-        defaults.removeObjectForKey(Default.key)
+        defaults.removeObject(forKey: Default.key)
     }
     
     public func syncronize() -> Bool {
@@ -98,7 +98,7 @@ public final class InMemoryStore<Default: DefaultConvertible>: DefaultStoreType 
     
     public init() {}
     
-    public func set(value: Default) {
+    public func set(_ value: Default) {
         let obj = value.serialize()
         dictionary[Default.key] = obj
     }
