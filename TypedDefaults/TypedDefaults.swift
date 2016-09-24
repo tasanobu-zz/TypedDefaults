@@ -15,12 +15,12 @@ public protocol DefaultConvertible {
     
     static var key: String { get }
     
-    /// Desirialize AnyObject to adopted object.
+    /// Desirialize Any to adopted object.
     /// The argument "object" is intended to be passed from DefaultStoreType
-    init?(_ object: AnyObject)
+    init?(_ object: Any)
     
-    /// Serialize adopted object to AnyObject for setting it to DefaultStoreType.
-    func serialize() -> AnyObject
+    /// Serialize adopted object to Any for setting it to DefaultStoreType.
+    func serialize() -> Any
 }
 
 // MARK: - DefaultStoreType
