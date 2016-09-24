@@ -47,9 +47,9 @@ public protocol DefaultConvertible {
 
     static var key: String { get }
 
-    init?(_ object: AnyObject)
+    init?(_ object: Any)
 
-    func serialize() -> AnyObject
+    func serialize() -> Any
 }
 ```
 
@@ -75,8 +75,8 @@ struct CameraConfig: DefaultConvertible {
 
     static let key = "CameraConfig"
 
-    init?(_ object: AnyObject) {
-        guard let dict = object as? [String: AnyObject] else {
+    init?(_ object: Any) {
+        guard let dict = object as? [String: Any] else {
           return nil
         }
 
@@ -89,7 +89,7 @@ struct CameraConfig: DefaultConvertible {
         }
     }
 
-    func serialize() -> AnyObject {
+    func serialize() -> Any {
         return ["cameraRoll": saveToCameraRoll, "size": size.rawValue]
     }
 }
