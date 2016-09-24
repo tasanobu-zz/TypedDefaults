@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'TypedDefaults'
-  s.version = '1.0.0'
+  s.version = '1.1.0'
   s.license = 'MIT'
   s.summary = '`TypedDefaults` is a utility library to type-safely use NSUserDefaults'
   s.homepage = 'https://github.com/tasanobu/TypedDefaults'
