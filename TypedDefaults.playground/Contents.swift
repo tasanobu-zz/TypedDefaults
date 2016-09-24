@@ -6,7 +6,7 @@ enum Preference: String {
     case CameraConfig
     
     var key: String {
-        let prefix = NSBundle.mainBundle().bundleIdentifier!
+        let prefix = Bundle.main.bundleIdentifier!
         
         return prefix + "." + self.rawValue
     }
@@ -22,8 +22,8 @@ struct CameraConfig: DefaultConvertible {
     let saveToCameraRoll: Bool
     let size: Size
 
-    init?(_ object: AnyObject) {
-        guard let dict = object as? [String: AnyObject] else { return nil }
+    init?(_ object: Any) {
+        guard let dict = object as? [String: Any] else { return nil }
 
         self.saveToCameraRoll = dict["cameraRoll"] as? Bool ?? true
         if let rawSize = dict["size"] as? Int, let size = Size(rawValue: rawSize) {
@@ -33,7 +33,7 @@ struct CameraConfig: DefaultConvertible {
         }
     }
 
-    func serialize() -> AnyObject {
+    func serialize() -> Any {
         return ["cameraRoll": saveToCameraRoll, "size": size.rawValue]
     }
 }

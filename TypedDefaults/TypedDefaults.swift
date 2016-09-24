@@ -15,12 +15,12 @@ public protocol DefaultConvertible {
     
     static var key: String { get }
     
-    /// Desirialize AnyObject to adopted object.
+    /// Desirialize Any to adopted object.
     /// The argument "object" is intended to be passed from DefaultStoreType
-    init?(_ object: AnyObject)
+    init?(_ object: Any)
     
-    /// Serialize adopted object to AnyObject for setting it to DefaultStoreType.
-    func serialize() -> AnyObject
+    /// Serialize adopted object to Any for setting it to DefaultStoreType.
+    func serialize() -> Any
 }
 
 // MARK: - DefaultStoreType
@@ -29,7 +29,7 @@ public protocol DefaultStoreType {
     
     associatedtype Default: DefaultConvertible
   
-    func set(value: Default)
+    func set(_ value: Default)
     func get() -> Default?
     func remove()
 }
@@ -40,17 +40,17 @@ public final class AnyStore<D: DefaultConvertible>: DefaultStoreType {
     
     public typealias Default = D
     
-    private let _set: Default -> ()
+    private let _set: (Default) -> ()
     private let _get: () -> Default?
     private let _remove: () -> ()
     
-    public init<Inner: DefaultStoreType where Inner.Default == D>(_ inner: Inner) {
+    public init<Inner: DefaultStoreType>(_ inner: Inner) where Inner.Default == D {
         _set = inner.set
         _get = inner.get
         _remove = inner.remove
     }
     
-    public func set(value: Default) {
+    public func set(_ value: Default) {
         _set(value)
     }
     
@@ -67,22 +67,22 @@ public final class AnyStore<D: DefaultConvertible>: DefaultStoreType {
 
 public final class PersistentStore<Default: DefaultConvertible>: DefaultStoreType {
     
-    private let defaults = NSUserDefaults.standardUserDefaults()
+    private let defaults = UserDefaults.standard
     
     public init() {}
     
-    public func set(value: Default) {
+    public func set(_ value: Default) {
         let obj = value.serialize()
-        defaults.setObject(obj, forKey: Default.key)
+        defaults.set(obj, forKey: Default.key)
     }
     
     public func get() -> Default? {
-        guard let obj = defaults.objectForKey(Default.key) else { return nil }
+        guard let obj = defaults.object(forKey: Default.key) else { return nil }
         return Default(obj)
     }
     
     public func remove() {
-        defaults.removeObjectForKey(Default.key)
+        defaults.removeObject(forKey: Default.key)
     }
     
     public func syncronize() -> Bool {
@@ -94,11 +94,11 @@ public final class PersistentStore<Default: DefaultConvertible>: DefaultStoreTyp
 
 public final class InMemoryStore<Default: DefaultConvertible>: DefaultStoreType {
     
-    private var dictionary: [String: AnyObject] = [:]
+    private var dictionary: [String: Any] = [:]
     
     public init() {}
     
-    public func set(value: Default) {
+    public func set(_ value: Default) {
         let obj = value.serialize()
         dictionary[Default.key] = obj
     }
