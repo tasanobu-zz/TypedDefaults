@@ -44,7 +44,7 @@ public final class AnyStore<D: DefaultConvertible>: DefaultStoreType {
     private let _get: () -> Default?
     private let _remove: () -> ()
     
-    public init<Inner: DefaultStoreType where Inner.Default == D>(_ inner: Inner) {
+    public init<Inner: DefaultStoreType>(_ inner: Inner) where Inner.Default == D {
         _set = inner.set
         _get = inner.get
         _remove = inner.remove
@@ -94,7 +94,7 @@ public final class PersistentStore<Default: DefaultConvertible>: DefaultStoreTyp
 
 public final class InMemoryStore<Default: DefaultConvertible>: DefaultStoreType {
     
-    private var dictionary: [String: AnyObject] = [:]
+    private var dictionary: [String: Any] = [:]
     
     public init() {}
     
