@@ -27,8 +27,8 @@ The talk *[Keep Calm and Type Erase On](https://realm.io/news/tryswift-gwendolyn
 
 #### Requirements
 - iOS 8.0+
-- Swift 3.0
-- Xcode 8
+- Swift 4.0
+- Xcode 9
 
 ## Features
 - Custom types can be type-safely stored in NSUserDefaults
